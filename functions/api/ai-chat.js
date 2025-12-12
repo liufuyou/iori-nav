@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
       return errorResponse('Workers AI binding (env.AI) not found', 500);
     }
 
-    const model = env.WORKERS_AI_MODEL || '@cf/meta/llama-3-8b-instruct';
+    const model = env.WORKERS_AI_MODEL || '@cf/mistralai/mistral-small-3.1-24b-instruct';
 
     const response = await env.AI.run(model, {
       messages: messages
