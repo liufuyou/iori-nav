@@ -707,7 +707,7 @@ function renderCategoryCards(categories) {
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
              </svg>
          </button>
-         <button class="category-del-btn p-1.5 ${siteCount > 0 || subCount > 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-red-100 text-red-600 hover:bg-red-200'} rounded-full transition-colors" title="${siteCount > 0 || subCount > 0 ? '包含书签或子分类的分类无法删除' : '删除'}" data-category-id="${item.id}" ${siteCount > 0 || subCount > 0 ? 'disabled' : ''}>
+         <button class="category-del-btn p-1.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition-colors" title="删除" data-category-id="${item.id}" data-site-count="${siteCount}" data-sub-count="${subCount}">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
              </svg>
@@ -779,10 +779,20 @@ function bindCategoryEvents() {
   document.querySelectorAll('.category-del-btn').forEach(btn => {
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (this.disabled) {
-        return;
-      }
+      // Remove disabled check since we removed the attribute
       const category_id = this.getAttribute('data-category-id');
+      const siteCount = parseInt(this.getAttribute('data-site-count') || '0');
+      const subCount = parseInt(this.getAttribute('data-sub-count') || '0');
+      
+      if (siteCount > 0) {
+          showMessage(`无法删除：该分类包含 ${siteCount} 个书签`, 'error');
+          return;
+      }
+      if (subCount > 0) {
+          showMessage(`无法删除：该分类包含 ${subCount} 个子分类`, 'error');
+          return;
+      }
+      
       if (!category_id) return;
       if (!confirm('确定删除该分类吗？')) return;
       
@@ -1166,7 +1176,7 @@ if (addBookmarkForm) {
 // ===================================
 // 新版 设置模态框逻辑 (Settings Modal)
 // ===================================
-document.addEventListener('DOMContentLoaded', () => {
+const initSettings = () => {
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsModal = document.getElementById('settingsModal');
   if (!settingsBtn || !settingsModal) return;
@@ -1919,7 +1929,8 @@ document.addEventListener('DOMContentLoaded', () => {
       handleSingleGenerate('editBookmarkName', 'editBookmarkUrl', 'editBookmarkDesc', 'editBookmarkAiBtn', 'editBookmarkModal');
     });
   }
-});
+};
+initSettings();
 
 // Init Data
 fetchConfigs();
